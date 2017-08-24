@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.rk.uremote.BrandActivity">
+
+    <include layout="@layout/toolbar"
+        android:id="@+id/toolbar"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/brand_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="@dimen/size_8dp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/comming_soon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:text="Comming Soon..."
+        android:textSize="@dimen/size_20dp"
+        android:textColor="@color/color_black"
+        android:textStyle="bold"
+        android:layout_marginTop="@dimen/size_16dp"
+        android:layout_gravity="center"
+        />
+
+</LinearLayout>

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_activity_background"
+    tools:context="com.example.rk.uremote.TVRemoteActivity">
+
+    <include layout="@layout/toolbar"
+        android:id="@+id/toolbar" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar">
+
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/power_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_power_settings_new_white"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/size_50dp" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="@dimen/size_50dp"
+            android:layout_below="@+id/power_button"
+            android:layout_marginLeft="@dimen/size_70dp">
+
+            <android.support.v7.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="@dimen/size_24dp">
+
+                <LinearLayout
+                    android:id="@+id/volume_layout"
+                    android:layout_width="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true">
+
+                    <ImageView
+                        android:id="@+id/volume_up"
+                        android:layout_width="@dimen/size_50dp"
+                        android:layout_height="@dimen/size_50dp"
+                        android:src="@drawable/ic_add_grey"
+                        android:padding="@dimen/size_14dp"
+                        android:layout_marginBottom="@dimen/size_16dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        />
+
+                    <ImageView
+                        android:id="@+id/volume_down"
+                        android:layout_width="@dimen/size_50dp"
+                        android:layout_height="@dimen/size_50dp"
+                        android:src="@drawable/ic_remove_grey"
+                        android:padding="@dimen/size_14dp"
+                        android:layout_marginTop="@dimen/size_16dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        />
+
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+
+            <TextView
+                android:id="@+id/volume_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Volume"
+                android:textSize="@dimen/size_16dp"
+                android:layout_below="@+id/volume_layout"
+                android:layout_marginTop="@dimen/size_16dp"
+                />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="@dimen/size_50dp"
+            android:layout_below="@+id/power_button"
+            android:layout_marginRight="@dimen/size_70dp"
+            android:layout_alignParentRight="true">
+
+
+            <android.support.v7.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="@dimen/size_24dp">
+
+
+            <LinearLayout
+                android:id="@+id/channel_layout"
+                android:layout_width="wrap_content"
+                android:orientation="vertical"
+                android:layout_height="wrap_content"
+                android:background="@drawable/oval_background_buttons">
+
+                <ImageView
+                    android:id="@+id/channel_up"
+                    android:layout_width="@dimen/size_50dp"
+                    android:layout_height="@dimen/size_50dp"
+                    android:src="@drawable/ic_keyboard_arrow_up_grey"
+                    android:padding="@dimen/size_14dp"
+                    android:layout_marginBottom="@dimen/size_16dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    />
+
+                <ImageView
+                    android:id="@+id/channel_down"
+                    android:layout_width="@dimen/size_50dp"
+                    android:layout_height="@dimen/size_50dp"
+                    android:src="@drawable/ic_keyboard_arrow_down_grey"
+                    android:padding="@dimen/size_14dp"
+                    android:layout_marginTop="@dimen/size_16dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    />
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <TextView
+                android:id="@+id/channel_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Channel"
+                android:textSize="@dimen/size_16dp"
+                android:layout_below="@+id/volume_layout"
+                android:layout_marginTop="@dimen/size_16dp"
+                />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+
+
+
+
+
+</RelativeLayout>

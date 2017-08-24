@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.rk.uremote.MainActivity">
+
+    <include layout="@layout/toolbar"
+        android:id="@+id/toolbar"/>
+
+    <ScrollView
+        android:id="@+id/scroll_view"
+        android:fillViewport="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <GridView
+                android:id="@+id/appliance_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:columnWidth="@dimen/size_4dp"
+                android:numColumns="2"
+                android:verticalSpacing="@dimen/size_16dp"
+                android:horizontalSpacing="@dimen/size_16dp"
+                android:stretchMode="columnWidth"
+                android:padding="@dimen/size_16dp"
+                />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
