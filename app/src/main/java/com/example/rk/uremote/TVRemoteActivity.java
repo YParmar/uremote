@@ -3,7 +3,11 @@ package com.example.rk.uremote;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Parcel;
 import android.os.ParcelUuid;
 import android.support.design.widget.FloatingActionButton;
@@ -19,15 +23,10 @@ import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.UUID;
 
-public class TVRemoteActivity extends AppCompatActivity implements View.OnClickListener{
-
-    private static final String TAG = "bluetooth1";
+public class TVRemoteActivity extends AppCompatActivity implements View.OnClickListener {
 
     private FloatingActionButton powerButton;
-    private boolean isOn;
-
-    private OutputStream outputStream = null;
-    private InputStream inputStream = null;
+    private BluetoothAdapter bluetoothAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,86 +35,74 @@ public class TVRemoteActivity extends AppCompatActivity implements View.OnClickL
 
         powerButton = (FloatingActionButton) findViewById(R.id.power_button);
         powerButton.setOnClickListener(this);
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        try {
-            initBluetooth();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-    }
-    private void initBluetooth() throws Exception {
-
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if(bluetoothAdapter != null){
-            if(bluetoothAdapter.isEnabled()){
-                Set<BluetoothDevice> bondedDevices = bluetoothAdapter.getBondedDevices();
-
-                if(bondedDevices.size() > 0){
-                    Object [] devices = bondedDevices.toArray();
-                    BluetoothDevice bluetoothDevice = (BluetoothDevice) devices[1];
-                    ParcelUuid [] uuids = bluetoothDevice.getUuids();
-                    BluetoothSocket socket = bluetoothDevice.createRfcommSocketToServiceRecord(uuids[0].getUuid());
-                    socket.connect();
-                    outputStream = socket.getOutputStream();
-                    inputStream = socket.getInputStream();
-                }else {
-                    showToast("no Paired devices");
-                }
-
-            }else {
-                showToast("Enable bluetooth");
-            }
-
-        }
 
     }
 
 
-    private void sendMessage(String data) throws Exception{
-        outputStream.write(data.getBytes());
-
-    }
-
-    public void run(){
-
-        final int BUFFER_SIZE = 1024;
-        byte [] buffer = new byte[BUFFER_SIZE];
-        int bytes = 0;
-        int b = BUFFER_SIZE;
-
-        while(true){
-
-            try{
-
-                bytes = inputStream.read(buffer,bytes,BUFFER_SIZE-bytes);
-            }catch(Exception e){
-
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void showToast(String message){
+    private void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
 
-            case R.id.power_button:{
-                try{
-                    String dataMessage = (isOn) ? "0" : "1";
-                    sendMessage(dataMessage);
-                    isOn = !isOn;
-                    showToast(dataMessage);
-                }catch (Exception e){e.printStackTrace();}
+            case R.id.power_button: {
+                enableDisableBluetooth();
             }
             break;
 
 
         }
+    }
+
+    private void enableDisableBluetooth() {
+        if (bluetoothAdapter == null) {
+            showToast("Your device does not have bluetooth capabilities");
+
+        }
+        if (!bluetoothAdapter.isEnabled()) {
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivity(enableIntent);
+            IntentFilter BtIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+            registerReceiver(broadcastReceiver, BtIntent);
+        }
+        if (bluetoothAdapter.isEnabled()) {
+            bluetoothAdapter.disable();
+            IntentFilter BtIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+            registerReceiver(broadcastReceiver, BtIntent);
+
+        }
+
+    }
+
+
+    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(bluetoothAdapter.ACTION_STATE_CHANGED)) {
+                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, bluetoothAdapter.ERROR);
+
+                switch (state) {
+                    case BluetoothAdapter.STATE_OFF:
+                        showToast("Bluetooth turned off");
+                        break;
+
+                    case BluetoothAdapter.STATE_ON:
+                        showToast("Bluetooth turned on");
+                        break;
+                }
+            }
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(broadcastReceiver);
     }
 }
 
