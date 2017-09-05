@@ -26,8 +26,7 @@ public class TVRemoteActivity extends AppCompatActivity implements View.OnClickL
     private BluetoothSendService bluetoothSendService;
     private BluetoothDevice mDevice;
 
-    private static final UUID MY_UUID_INSECURE = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
-
+    private static final UUID MY_UUID_INSECURE = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,11 +40,7 @@ public class TVRemoteActivity extends AppCompatActivity implements View.OnClickL
         volumeDown.setOnClickListener(this);
         powerButton.setOnClickListener(this);
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-        IntentFilter pairFilter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        registerReceiver(pairReceiver, pairFilter);
     }
-
 
     private void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
@@ -61,7 +56,6 @@ public class TVRemoteActivity extends AppCompatActivity implements View.OnClickL
             break;
 
             case R.id.volume_up: {
-                startConnection();
             }
             break;
 
@@ -97,28 +91,9 @@ public class TVRemoteActivity extends AppCompatActivity implements View.OnClickL
             bluetoothAdapter.disable();
             IntentFilter BtIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
             registerReceiver(broadcastReceiver, BtIntent);
-
         }
 
     }
-
-    BroadcastReceiver pairReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if(mDevice.getBondState()== BluetoothDevice.BOND_BONDED){
-                    mDevice = device;
-                }
-                if(mDevice.getBondState()== BluetoothDevice.BOND_BONDING){}
-                if (mDevice.getBondState()== BluetoothDevice.BOND_NONE){
-                    showToast("no paired devices found");
-                }
-            }
-
-        }
-    };
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -134,10 +109,8 @@ public class TVRemoteActivity extends AppCompatActivity implements View.OnClickL
 
                     case BluetoothAdapter.STATE_ON:
                         showToast("Bluetooth turned on");
-
-                        mDevice = bluetoothAdapter.getBondedDevices().iterator().next();
-
-                        bluetoothSendService = new BluetoothSendService(TVRemoteActivity.this);
+                        Intent pairedIntent = new Intent(TVRemoteActivity.this, PairActivity.class);
+                        startActivityForResult(pairedIntent, 100);
                         break;
 
                 }
@@ -150,12 +123,26 @@ public class TVRemoteActivity extends AppCompatActivity implements View.OnClickL
         super.onDestroy();
         try {
             unregisterReceiver(broadcastReceiver);
-            unregisterReceiver(pairReceiver);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //super.onActivityResult(requestCode, resultCode, data);
 
+        if(data != null){
+            if(resultCode == 100){
+                mDevice = data.getParcelableExtra("DEVICE");
+                bluetoothSendService = new BluetoothSendService(TVRemoteActivity.this);
+                startConnection();
+            }else {
+                showToast("wrong");
+            }
+        }else {
+            showToast("intent null");
+        }
+    }
 }
 
