@@ -5,28 +5,29 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Parcel;
-import android.os.ParcelUuid;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Method;
-import java.util.Set;
+import java.nio.charset.Charset;
 import java.util.UUID;
 
 public class TVRemoteActivity extends AppCompatActivity implements View.OnClickListener {
 
     private FloatingActionButton powerButton;
+    private ImageView volumeUp;
+    private ImageView volumeDown;
     private BluetoothAdapter bluetoothAdapter;
+    private BluetoothSendService bluetoothSendService;
+    private BluetoothDevice mDevice;
+
+    private static final UUID MY_UUID_INSECURE = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,10 +35,15 @@ public class TVRemoteActivity extends AppCompatActivity implements View.OnClickL
         setContentView(R.layout.activity_remote);
 
         powerButton = (FloatingActionButton) findViewById(R.id.power_button);
+        volumeUp = (ImageView) findViewById(R.id.volume_up);
+        volumeUp.setOnClickListener(this);
+        volumeDown = (ImageView) findViewById(R.id.volume_down);
+        volumeDown.setOnClickListener(this);
         powerButton.setOnClickListener(this);
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-
+        IntentFilter pairFilter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        registerReceiver(pairReceiver, pairFilter);
     }
 
 
@@ -54,8 +60,26 @@ public class TVRemoteActivity extends AppCompatActivity implements View.OnClickL
             }
             break;
 
+            case R.id.volume_up: {
+                startConnection();
+            }
+            break;
+
+            case R.id.volume_down: {
+                byte [] bytes = "1".getBytes(Charset.defaultCharset());
+                bluetoothSendService.write(bytes);
+            }
+            break;
 
         }
+    }
+
+    private void startConnection() {
+        startConnectService(mDevice, MY_UUID_INSECURE);
+    }
+
+    private void startConnectService(BluetoothDevice device , UUID uuid){
+        bluetoothSendService.startClient(device, uuid);
     }
 
     private void enableDisableBluetooth() {
@@ -78,6 +102,23 @@ public class TVRemoteActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
+    BroadcastReceiver pairReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if(mDevice.getBondState()== BluetoothDevice.BOND_BONDED){
+                    mDevice = device;
+                }
+                if(mDevice.getBondState()== BluetoothDevice.BOND_BONDING){}
+                if (mDevice.getBondState()== BluetoothDevice.BOND_NONE){
+                    showToast("no paired devices found");
+                }
+            }
+
+        }
+    };
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -93,7 +134,12 @@ public class TVRemoteActivity extends AppCompatActivity implements View.OnClickL
 
                     case BluetoothAdapter.STATE_ON:
                         showToast("Bluetooth turned on");
+
+                        mDevice = bluetoothAdapter.getBondedDevices().iterator().next();
+
+                        bluetoothSendService = new BluetoothSendService(TVRemoteActivity.this);
                         break;
+
                 }
             }
         }
@@ -102,7 +148,14 @@ public class TVRemoteActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(broadcastReceiver);
+        try {
+            unregisterReceiver(broadcastReceiver);
+            unregisterReceiver(pairReceiver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
+
 }
 
